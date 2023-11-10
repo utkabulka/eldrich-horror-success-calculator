@@ -46,7 +46,9 @@ namespace EldrichHorrorSuccessCalculator
         </head><body>");
 
       int tableWidth = 10;
-      htmlFile.WriteLine(BuildTable(results, cubes, successCriteria: 4, tableWidth));
+      htmlFile.WriteLine(BuildTable(results, title: "Normal throws", cubes, successCriteria: 4, tableWidth));
+      htmlFile.WriteLine(BuildTable(results, title: "Blessed throws", cubes, successCriteria: 3, tableWidth));
+      htmlFile.WriteLine(BuildTable(results, title: "Cursed throws", cubes, successCriteria: 5, tableWidth));
 
       htmlFile.WriteLine("</body></html>");
       htmlFile.Flush();
@@ -74,15 +76,24 @@ namespace EldrichHorrorSuccessCalculator
       return (double)successCount / (double)results.GetLength(1) * 100;
     }
 
-    static string BuildTable(int[,] results, int cubes, int successCriteria, int tableWidth)
+    static string BuildTable(int[,] results, string title, int cubes, int successCriteria, int tableWidth)
     {
-      string table = "<table><tbody>";
+      string table = $@"<div class=""table-block"">
+      <table>
+        <h1>{title}</h1>
+        <tbody>";
 
       table += "<tr>";
       for (int j = 0; j < tableWidth + 1; j++)
       {
-        // Console.Write($" {j + 1}\t\t|");
-        table += $"<th>{j}</th>";
+        if (j == 0)
+        {
+          table += @"<th><div class=""table-corner"">Successes<hr>Cubes</div></th>";
+        }
+        else
+        {
+          table += $"<th>{j}</th>";
+        }
       }
       table += "</tr>";
 
@@ -94,24 +105,62 @@ namespace EldrichHorrorSuccessCalculator
         {
           if (j == 0)
           {
-            table += $"<td>{i}</td>";
+            table += $@"<td class=""cubes-column"">{i}</td>";
           }
           else
           {
             if (i + 1 > j)
             {
-              table += $"<td>{GetSuccessRate(results, cubeCount: i, successesNeeded: j, successCriteria).ToString("0.00")}</td>";
+              double successRate = GetSuccessRate(results, cubeCount: i, successesNeeded: j, successCriteria);
+              int severity = 0;
+              if (successRate < 90)
+              {
+                severity = 1;
+              }
+              if (successRate < 80)
+              {
+                severity = 2;
+              }
+              if (successRate < 70)
+              {
+                severity = 3;
+              }
+              if (successRate < 60)
+              {
+                severity = 4;
+              }
+              if (successRate < 50)
+              {
+                severity = 5;
+              }
+              if (successRate < 40)
+              {
+                severity = 6;
+              }
+              if (successRate < 30)
+              {
+                severity = 7;
+              }
+              if (successRate < 20)
+              {
+                severity = 8;
+              }
+              if (successRate < 10)
+              {
+                severity = 9;
+              }
+              table += $@"<td class=""severity-{severity}"">{successRate.ToString("0.00")}</td>";
             }
             else
             {
-              table += $"<td>N/A</td>";
+              table += $"<td></td>";
             }
           }
         }
         table += "</tr>";
       }
 
-      table += "</table></tbody>";
+      table += "</tbody></table></div>";
       return table;
     }
   }

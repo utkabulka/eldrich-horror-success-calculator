@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 
 namespace EldrichHorrorSuccessCalculator
 {
@@ -33,9 +34,23 @@ namespace EldrichHorrorSuccessCalculator
       int iterations = 1000000;
       int[,] results = cubeSimulator.Simulate(cubes, iterations);
 
-      Console.WriteLine($"SR for 1 cube, 1 success: {GetSuccessRate(results, successCriteria: 4, successesNeeded: 1, cubeCount: 1)}%");
-      Console.WriteLine($"SR for 2 cubes, 1 success: {GetSuccessRate(results, successCriteria: 4, successesNeeded: 1, cubeCount: 2)}%");
-      Console.WriteLine($"SR for 2 cubes, 2 successes: {GetSuccessRate(results, successCriteria: 4, successesNeeded: 2, cubeCount: 2)}%");
+      StreamWriter htmlFile = new StreamWriter("./index.html");
+
+      htmlFile.WriteLine(@"<!DOCTYPE html>
+        <html lang=""en"">
+        <head>
+          <meta charset=""UTF-8"">
+          <meta name=""viewport"" content=""width=device-width, initial-scale=1.0"">
+          <title>Eldrich Horror Success Rates</title>
+          <link rel=""stylesheet"" href=""./styles.css"" defer />
+        </head><body>");
+
+      int tableWidth = 10;
+      htmlFile.WriteLine(BuildTable(results, cubes, successCriteria: 4, tableWidth));
+
+      htmlFile.WriteLine("</body></html>");
+      htmlFile.Flush();
+      htmlFile.Close();
     }
 
     static double GetSuccessRate(int[,] results, int cubeCount, int successesNeeded, int successCriteria)
@@ -57,6 +72,47 @@ namespace EldrichHorrorSuccessCalculator
         }
       }
       return (double)successCount / (double)results.GetLength(1) * 100;
+    }
+
+    static string BuildTable(int[,] results, int cubes, int successCriteria, int tableWidth)
+    {
+      string table = "<table><tbody>";
+
+      table += "<tr>";
+      for (int j = 0; j < tableWidth + 1; j++)
+      {
+        // Console.Write($" {j + 1}\t\t|");
+        table += $"<th>{j}</th>";
+      }
+      table += "</tr>";
+
+      for (int i = 1; i < cubes + 1; i++)
+      {
+        // row
+        table += "<tr>";
+        for (int j = 0; j < tableWidth + 1; j++)
+        {
+          if (j == 0)
+          {
+            table += $"<td>{i}</td>";
+          }
+          else
+          {
+            if (i + 1 > j)
+            {
+              table += $"<td>{GetSuccessRate(results, cubeCount: i, successesNeeded: j, successCriteria).ToString("0.00")}</td>";
+            }
+            else
+            {
+              table += $"<td>N/A</td>";
+            }
+          }
+        }
+        table += "</tr>";
+      }
+
+      table += "</table></tbody>";
+      return table;
     }
   }
 }

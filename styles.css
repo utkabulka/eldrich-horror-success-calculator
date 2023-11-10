@@ -1,0 +1,16 @@
+@import url("https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap");
+
+html {
+  font-size: 24px;
+  font-family: Roboto, sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+th,
+td {
+  border: 1px solid #c8c8c8;
+  padding: 8px 16px 8px 16px;
+  min-width: 60px;
+  text-align: center;
+}

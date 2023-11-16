@@ -1,11 +1,10 @@
-﻿using System;
-using System.IO;
+﻿using System.Diagnostics;
 
 namespace EldrichHorrorSuccessCalculator
 {
   internal class Program
   {
-    static void Main(string[] args)
+    static int Main(string[] args)
     {
       // table should look like this
       // normally 5 and 6 is a success
@@ -27,16 +26,20 @@ namespace EldrichHorrorSuccessCalculator
       9   | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0   | 0   | 0   | 0   | 0
       10  | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0   | 0   | 0   | 0   | 0
       */
-
+      Stopwatch stopwatch = new Stopwatch();
+      stopwatch.Start();
       CubeSimulator cubeSimulator = new CubeSimulator(cubeSides: 6);
 
       int cubes = 10;
       int iterations = 1000000;
       int[,] results = cubeSimulator.Simulate(cubes, iterations);
+      stopwatch.Stop();
+      Console.WriteLine($"Simulated throwing {cubes} cubes {iterations} times in {stopwatch.ElapsedMilliseconds}ms");
 
-      StreamWriter htmlFile = new StreamWriter("./index.html");
+      const string HTML_FILE_OUTPUT_PATH = "./index.html";
+      StreamWriter fileWriter = new StreamWriter(HTML_FILE_OUTPUT_PATH);
 
-      htmlFile.WriteLine(@"<!DOCTYPE html>
+      fileWriter.WriteLine(@"<!DOCTYPE html>
         <html lang=""en"">
         <head>
           <meta charset=""UTF-8"">
@@ -46,13 +49,37 @@ namespace EldrichHorrorSuccessCalculator
         </head><body>");
 
       int tableWidth = 10;
-      htmlFile.WriteLine(BuildTable(results, title: "Normal throws", cubes, successCriteria: 4, tableWidth));
-      htmlFile.WriteLine(BuildTable(results, title: "Blessed throws", cubes, successCriteria: 3, tableWidth));
-      htmlFile.WriteLine(BuildTable(results, title: "Cursed throws", cubes, successCriteria: 5, tableWidth));
 
-      htmlFile.WriteLine("</body></html>");
-      htmlFile.Flush();
-      htmlFile.Close();
+      stopwatch.Restart();
+      string tableTitle = "Normal throws";
+      fileWriter.WriteLine(BuildHTMLTable(results, tableTitle, cubes, successCriteria: 4, tableWidth));
+      stopwatch.Stop();
+      Console.WriteLine($"Built table '{tableTitle}' in {stopwatch.ElapsedMilliseconds}ms");
+
+      stopwatch.Restart();
+      tableTitle = "Blessed throws";
+      fileWriter.WriteLine(BuildHTMLTable(results, tableTitle, cubes, successCriteria: 3, tableWidth));
+      stopwatch.Stop();
+      Console.WriteLine($"Built table '{tableTitle}' in {stopwatch.ElapsedMilliseconds}ms");
+
+      stopwatch.Restart();
+      tableTitle = "Cursed throws";
+      fileWriter.WriteLine(BuildHTMLTable(results, tableTitle, cubes, successCriteria: 5, tableWidth));
+      stopwatch.Stop();
+      Console.WriteLine($"Built table '{tableTitle}' in {stopwatch.ElapsedMilliseconds}ms");
+
+      fileWriter.WriteLine("</body></html>");
+      fileWriter.Flush();
+      fileWriter.Close();
+
+      const string CSS_FILE_OUTPUT_PATH = "./styles.css";
+      fileWriter = new StreamWriter(CSS_FILE_OUTPUT_PATH);
+      fileWriter.WriteLine(Styles.StylesheetString);
+      fileWriter.Flush();
+      fileWriter.Close();
+
+      Console.WriteLine($"Done!");
+      return 0;
     }
 
     static double GetSuccessRate(int[,] results, int cubeCount, int successesNeeded, int successCriteria)
@@ -76,7 +103,7 @@ namespace EldrichHorrorSuccessCalculator
       return (double)successCount / (double)results.GetLength(1) * 100;
     }
 
-    static string BuildTable(int[,] results, string title, int cubes, int successCriteria, int tableWidth)
+    static string BuildHTMLTable(int[,] results, string title, int cubes, int successCriteria, int tableWidth)
     {
       string table = $@"<div class=""table-block"">
       <table>

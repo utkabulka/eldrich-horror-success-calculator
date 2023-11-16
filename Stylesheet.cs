@@ -1,4 +1,12 @@
-@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+namespace EldrichHorrorSuccessCalculator
+{
+  public class Styles
+  {
+    /// <summary>
+    /// This string will be written to 'styles.css', so the table doesn't look ugly.
+    /// It should be manually updated with contents of 'styles.css' file in this repository.
+    /// </summary>
+    public const string StylesheetString = @"@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
 html {
   font-size: 24px;
   font-family: Roboto, sans-serif;
@@ -83,4 +91,6 @@ td.severity-8 {
 }
 td.severity-9 {
   background-color: #6e0000;
+}";
+  }
 }
